@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-body bg-cream text-charcoal-900;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { @apply font-display; }
+}
+
+@layer components {
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gold-500 hover:bg-gold-600 text-white
+           font-body font-medium tracking-widest uppercase text-xs
+           px-8 py-3.5 transition-all duration-300
+           border border-gold-500 hover:border-gold-600
+           hover:shadow-lg hover:shadow-gold-500/20
+           active:scale-95;
+  }
+
+  .btn-outline-gold {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent hover:bg-gold-500 text-gold-500 hover:text-white
+           font-body font-medium tracking-widest uppercase text-xs
+           px-8 py-3.5 transition-all duration-300
+           border border-gold-500 active:scale-95;
+  }
+
+  .btn-white {
+    @apply inline-flex items-center justify-center gap-2
+           bg-white hover:bg-gold-50 text-charcoal-900
+           font-body font-medium tracking-widest uppercase text-xs
+           px-8 py-3.5 transition-all duration-300
+           border border-white/30 hover:border-gold-300
+           active:scale-95;
+  }
+
+  .section-label {
+    @apply font-accent text-gold-500 tracking-[0.3em] uppercase text-xs font-semibold;
+  }
+
+  .section-title {
+    @apply font-display text-charcoal-950 text-4xl md:text-5xl font-light leading-tight;
+  }
+
+  .section-title-white {
+    @apply font-display text-white text-4xl md:text-5xl font-light leading-tight;
+  }
+
+  .gold-divider {
+    @apply w-16 h-px bg-gold-500 mx-auto my-4;
+  }
+
+  /* Removed 'group' from here — was causing PostCSS error */
+  .card-luxury {
+    @apply bg-white shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden;
+  }
+
+  .input-luxury {
+    @apply w-full border border-charcoal-200 bg-white px-4 py-3
+           font-body text-sm text-charcoal-800 placeholder-charcoal-400
+           focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30
+           transition-all duration-200;
+  }
+
+  .nav-link {
+    @apply font-body font-medium tracking-widest uppercase text-xs
+           transition-colors duration-200 hover:text-gold-400 relative;
+  }
+}
+
+/* Hero slider transitions */
+.hero-slide { transition: opacity 0.8s ease; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #e7e7e7; }
+::-webkit-scrollbar-thumb { background: #c9a227; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #a8821b; }
+
+/* React Datepicker overrides */
+.react-datepicker-wrapper { width: 100%; }
+.react-datepicker__input-container input { width: 100%; }
+.react-datepicker {
+  font-family: 'Jost', sans-serif !important;
+  border: 1px solid #d1d1d1 !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+  border-radius: 0 !important;
+}
+.react-datepicker__header {
+  background-color: #1a1a1a !important;
+  border-bottom: 1px solid #c9a227 !important;
+  border-radius: 0 !important;
+}
+.react-datepicker__current-month,
+.react-datepicker__day-name { color: #fff !important; }
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #c9a227 !important;
+  border-radius: 0 !important;
+}
+.react-datepicker__day:hover {
+  background-color: #faf3d0 !important;
+  border-radius: 0 !important;
+}
+.react-datepicker__navigation-icon::before {
+  border-color: #c9a227 !important;
+}
+
+/* Skeleton loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* Smooth page fade */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
