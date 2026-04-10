@@ -16,7 +16,7 @@ export default function Contact() {
     setLoading(true)
     try {
       await api.post('/contact', form)
-      toast.success('Message sent! We\'ll reply within 24 hours.')
+      toast.success("Message sent! We'll reply within 24 hours.")
       setForm({ name: '', email: '', phone: '', subject: '', message: '' })
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to send message')
@@ -34,7 +34,6 @@ export default function Contact() {
 
       <section className="py-24 bg-cream">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-5 gap-12">
-          {/* Info */}
           <div className="lg:col-span-2 space-y-6">
             <div>
               <p className="section-label mb-3">Get in Touch</p>
@@ -46,7 +45,7 @@ export default function Contact() {
             </div>
 
             {[
-              { icon: Phone, label: 'Reservations', value: '+91 98765 43210', href: 'tel:+919876543210' },
+              { icon: Phone, label: 'Reservations', value: '+91 90826 90060', href: 'tel:+919082690060' },
               { icon: Mail, label: 'Email Us', value: 'reservations@tnghotels.com', href: 'mailto:reservations@tnghotels.com' },
               { icon: MapPin, label: 'Address', value: 'TNG Hotels & Banquets, Akola – 444001, Maharashtra', href: null },
               { icon: Clock, label: 'Front Desk', value: '24 × 7, all days', href: null },
@@ -67,7 +66,6 @@ export default function Contact() {
             ))}
           </div>
 
-          {/* Form */}
           <div className="lg:col-span-3">
             <div className="bg-white shadow-sm border border-charcoal-100 p-8">
               <h3 className="font-display text-2xl text-charcoal-950 font-light mb-6">Send Us a Message</h3>
@@ -114,7 +112,6 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Chatbot Teaser */}
       <section className="py-12 bg-white border-t border-charcoal-100">
         <div className="max-w-2xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 bg-gold-50 border border-gold-200 px-5 py-2 mb-4">
@@ -122,7 +119,7 @@ export default function Contact() {
             <span className="font-body text-xs text-gold-700 tracking-wider">AI Concierge — Coming Soon</span>
           </div>
           <p className="font-body text-charcoal-400 text-sm">
-            Our AI-powered chatbot assistant will soon be available 24/7 for instant answers, recommendations, and bookings. Until then, use the chat button below or call us directly.
+            Our AI-powered chatbot assistant will soon be available 24/7 for instant answers, recommendations, and bookings. Until then, call us at <a href="tel:+919082690060" className="text-gold-600 hover:underline">+91 90826 90060</a>.
           </p>
         </div>
       </section>

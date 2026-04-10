@@ -142,7 +142,7 @@ export default function RoomDetail() {
                 Book Now
               </Link>
               <p className="text-center font-body text-white/30 text-xs mt-4">
-                Or call: <a href="tel:+919876543210" className="text-gold-400 hover:underline">+91 98765 43210</a>
+                Or call: <a href="tel:+919082690060" className="text-gold-400 hover:underline">+91 90826 90060</a>
               </p>
             </div>
           </div>

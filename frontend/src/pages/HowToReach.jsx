@@ -114,10 +114,10 @@ export default function HowToReach() {
           <p className="font-body text-charcoal-500 text-sm mb-5">
             We arrange luxury vehicle pickups from Akola Airport, Railway Station, or any Akola location for all hotel guests.
           </p>
-          <a href="tel:+919876543210" className="btn-gold">Call to Book Transfer</a>
+          <a href="tel:+919082690060" className="btn-gold">Call to Book Transfer</a>
         </div>
       </section>
       <ChatbotWidget />
     </>
   )
-}
+} 

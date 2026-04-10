@@ -4,7 +4,6 @@ import { Phone, Mail, MapPin, Instagram, Facebook, Twitter, Youtube } from 'luci
 export default function Footer() {
   return (
     <footer className="bg-charcoal-950 text-white">
-      {/* Top CTA strip */}
       <div className="bg-gold-500 py-4">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="font-display text-charcoal-950 text-lg italic">Experience Luxury Redefined in Akola</p>
@@ -13,11 +12,13 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-        {/* Brand */}
         <div>
-          <div className="mb-5">
-            <p className="font-accent text-gold-400 tracking-[0.3em] text-xl font-semibold">TNG</p>
-            <p className="font-body text-white/50 text-[10px] tracking-[0.4em] uppercase">Hotels & Banquets</p>
+          <div className="flex items-center gap-3 mb-5">
+            <img src="/tng-logo.png" alt="TNG" className="h-10 w-10 object-contain" onError={e => e.target.style.display='none'} />
+            <div>
+              <p className="font-accent text-gold-400 tracking-[0.3em] text-xl font-semibold">TNG</p>
+              <p className="font-body text-white/50 text-[10px] tracking-[0.4em] uppercase">Hotels & Banquets</p>
+            </div>
           </div>
           <p className="font-body text-white/50 text-sm leading-relaxed mb-6">
             Akola's most anticipated luxury hospitality destination — where elegance meets warmth, and every moment becomes a cherished memory.
@@ -37,7 +38,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Quick Links */}
         <div>
           <p className="section-label text-gold-400 mb-5">Quick Links</p>
           <ul className="space-y-2.5">
@@ -60,7 +60,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Services */}
         <div>
           <p className="section-label text-gold-400 mb-5">Our Services</p>
           <ul className="space-y-2.5">
@@ -73,7 +72,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Contact */}
         <div>
           <p className="section-label text-gold-400 mb-5">Get in Touch</p>
           <ul className="space-y-4">
@@ -86,9 +84,9 @@ export default function Footer() {
               </p>
             </li>
             <li>
-              <a href="tel:+919876543210" className="flex gap-3 text-white/50 hover:text-gold-400 transition-colors">
+              <a href="tel:+919082690060" className="flex gap-3 text-white/50 hover:text-gold-400 transition-colors">
                 <Phone size={15} className="text-gold-400 shrink-0 mt-0.5" />
-                <span className="font-body text-sm">+91 98765 43210</span>
+                <span className="font-body text-sm">+91 90826 90060</span>
               </a>
             </li>
             <li>
@@ -105,7 +103,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div className="border-t border-white/5 py-5">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-white/30 text-xs font-body">
           <p>© {new Date().getFullYear()} TNG Hotels & Banquets. All rights reserved.</p>

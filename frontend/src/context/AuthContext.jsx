@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
 import api from '../utils/api'
 
 const AuthContext = createContext(null)
@@ -26,7 +27,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('tng_token', r.data.token)
     localStorage.setItem('tng_user', JSON.stringify(r.data.user))
     setUser(r.data.user)
-    // NO toast here — Login.jsx handles it to avoid double toast
     return r.data.user
   }
 
@@ -35,7 +35,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('tng_token', r.data.token)
     localStorage.setItem('tng_user', JSON.stringify(r.data.user))
     setUser(r.data.user)
-    // NO toast here — Register.jsx handles it
     return r.data.user
   }
 
@@ -44,6 +43,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('tng_user')
     sessionStorage.removeItem('tng_welcomed')
     setUser(null)
+    // Show logout toast
+    toast.success('Signed out successfully. See you soon! 👋', { duration: 3000 })
   }
 
   return (
