@@ -414,12 +414,12 @@ export default function Booking() {
               <p className="font-body text-gold-400 text-xs tracking-widest uppercase mb-3">🧪 Test Payment Details</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs font-body">
                 <span className="text-white/50">Card Number</span>
-                <span className="text-white font-mono">4718 6009 0449 7085</span>
+                <span className="text-white font-mono">5267 3181 8797 5449</span>
                 <span className="text-white/50">Expiry / CVV</span>
                 <span className="text-white">12/26 / 123</span>
                 <span className="text-white/50">OTP</span>
                 <span className="text-white">1234</span>
-                <span className="text-white/50">UPI (easiest)</span>
+                <span className="text-white/50">UPI</span>
                 <span className="text-white font-mono">success@razorpay</span>
                 <span className="text-white/50">Netbanking</span>
                 <span className="text-white">Select any bank → click Success</span>
