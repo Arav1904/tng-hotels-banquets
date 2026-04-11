@@ -15,6 +15,9 @@ const paymentRoutes = require('./routes/payment');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// CRITICAL: Trust Railway/Vercel proxy headers (fixes rate-limit X-Forwarded-For error)
+app.set('trust proxy', 1);
+
 // Test DB connection on startup
 pool.query('SELECT NOW()', (err) => {
   if (err) {
@@ -25,46 +28,44 @@ pool.query('SELECT NOW()', (err) => {
   }
 });
 
-// Security — relaxed for development
-app.use(helmet({
-  crossOriginResourcePolicy: false,
-  contentSecurityPolicy: false,
-}));
+// Security
+app.use(helmet({ crossOriginResourcePolicy: false, contentSecurityPolicy: false }));
 
-// CORS — allow all localhost origins in development
+// CORS — allow all Vercel URLs + localhost
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://127.0.0.1:5173',
   'https://tng-hotelsandbanquets.vercel.app',
   'https://tng-hotelsandbanquets-git-main-aravghiya1904-1096s-projects.vercel.app',
   'https://tng-hotelsandbanquets-bx16ocpht-aravghiya1904-1096s-projects.vercel.app',
   process.env.FRONTEND_URL,
-].filter(Boolean)
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, curl)
-    if (!origin) return callback(null, true)
-    if (allowedOrigins.includes(origin)) return callback(null, true)
+    // Allow requests with no origin (Postman, mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     // In development allow all
-    if (process.env.NODE_ENV === 'development') return callback(null, true)
-    callback(new Error('Not allowed by CORS'))
+    if (process.env.NODE_ENV === 'development') return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Handle preflight requests
-app.options('*', cors())
+// Handle preflight
+app.options('*', cors());
 
-// Rate limiting
+// Rate limiting — works correctly with trust proxy set above
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
-  message: 'Too many requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  message: 'Too many requests, please try again later.',
 });
 app.use('/api/', limiter);
 
@@ -87,10 +88,10 @@ app.get('/api/health', (req, res) => {
 
 // Root
 app.get('/', (req, res) => {
-  res.json({ message: 'TNG Hotels & Banquets API', version: '1.0.0', docs: '/api/health' });
+  res.json({ message: 'TNG Hotels & Banquets API', version: '1.0.0' });
 });
 
-// 404 handler
+// 404
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
 });
@@ -106,8 +107,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 TNG Hotels API running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 TNG Hotels API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 Allowed origins: ${allowedOrigins.join(', ')}`);
 });
