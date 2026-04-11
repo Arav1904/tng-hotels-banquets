@@ -494,7 +494,7 @@ export default function Booking() {
                 <div className="mt-4 pt-4 border-t border-white/10">
                   <p className="font-body text-white/30 text-xs text-center">
                     Need help? Call us 24/7<br />
-                    <a href="tel:+919876543210" className="text-gold-400 hover:underline">+91 98765 43210</a>
+                    <a href="tel:+919082690060" className="text-gold-400 hover:underline">+91 90826 90060</a>
                   </p>
                 </div>
               </div>
