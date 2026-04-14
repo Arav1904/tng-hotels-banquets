@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -7,7 +9,7 @@ const { authenticate } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Validate request
+// Check for validation errors and respond if any exist
 const handleValidation = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -15,7 +17,7 @@ const handleValidation = (req, res) => {
   }
 };
 
-// Generate JWT
+// Sign and return a JWT for the given user ID
 const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },
@@ -24,131 +26,125 @@ const generateToken = (userId) => {
   );
 };
 
+// ─── REGISTER ───────────────────────────────────────────────────────────────
 
-router.post(
-  '/register',
-  [
-    body('name').notEmpty().trim().withMessage('Name is required'),
-    body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-    body('password').isLength({ min: 6 }).withMessage('Minimum 6 characters required'),
-  ],
-  async (req, res) => {
-    if (handleValidation(req, res)) return;
+const registerValidators = [
+  body('name').notEmpty().trim().withMessage('Name is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+  body('password').isLength({ min: 6 }).withMessage('Minimum 6 characters required'),
+];
 
-    const { name, email, password, phone } = req.body;
+const registerHandler = async (req, res) => {
+  if (handleValidation(req, res)) return;
 
-    try {
-      const existingUser = await db.query(
-        'SELECT id FROM users WHERE email = $1',
-        [email]
-      );
+  const { name, email, password, phone } = req.body;
 
-      if (existingUser.rows.length) {
-        return res.status(409).json({ error: 'Email already registered' });
-      }
+  try {
+    const existingUser = await db.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newUser = await db.query(
-        `INSERT INTO users (name, email, password_hash, phone, role)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, name, email, phone, role`,
-        [name, email, hashedPassword, phone || null, 'member']
-      );
-
-      const user = newUser.rows[0];
-      const token = generateToken(user.id);
-
-      res.status(201).json({ token, user });
-
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Registration failed' });
+    if (existingUser.rows.length) {
+      return res.status(409).json({ error: 'Email already registered' });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await db.query(
+      `INSERT INTO users (name, email, password_hash, phone, role)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, name, email, phone, role`,
+      [name, email, hashedPassword, phone || null, 'member']
+    );
+
+    const user = newUser.rows[0];
+    const token = generateToken(user.id);
+
+    res.status(201).json({ token, user });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Registration failed' });
   }
-);
+};
 
-router.post(
-  '/login',
-  [
-    body('email').isEmail().normalizeEmail(),
-    body('password').notEmpty(),
-  ],
-  async (req, res) => {
-    if (handleValidation(req, res)) return;
+router.post('/register', registerValidators, registerHandler);
 
-    const { email, password } = req.body;
+// ─── LOGIN ───────────────────────────────────────────────────────────────────
 
-    try {
-      const result = await db.query(
-        'SELECT * FROM users WHERE email = $1',
-        [email]
-      );
+const loginValidators = [
+  body('email').isEmail().normalizeEmail(),
+  body('password').notEmpty(),
+];
 
-      if (!result.rows.length) {
-        return res.status(404).json({
-          error: 'No account found. Please register.',
-        });
-      }
+const loginHandler = async (req, res) => {
+  if (handleValidation(req, res)) return;
 
-      const user = result.rows[0];
-      const isMatch = await bcrypt.compare(password, user.password_hash);
+  const { email, password } = req.body;
 
-      if (!isMatch) {
-        return res.status(401).json({
-          error: 'Invalid password',
-        });
-      }
+  try {
+    const result = await db.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
 
-      const token = generateToken(user.id);
-      const { password_hash, ...safeUser } = user;
-
-      res.json({ token, user: safeUser });
-
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Login failed' });
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'No account found. Please register.' });
     }
-  }
-);
 
+    const user = result.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password_hash);
 
-
-router.post(
-  '/forgot-password',
-  [body('email').isEmail().normalizeEmail()],
-  async (req, res) => {
-    if (handleValidation(req, res)) return;
-
-    const { email } = req.body;
-
-    try {
-      const result = await db.query(
-        'SELECT id, name FROM users WHERE email = $1',
-        [email]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          error: 'Account not found',
-        });
-      }
-
-      res.json({
-        message:
-          'Contact support at reservations@tnghotels.com or +91 90826 90060',
-        name: result.rows[0].name,
-      });
-
-    } catch (error) {
-      res.status(500).json({ error: 'Request failed' });
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid password' });
     }
+
+    const token = generateToken(user.id);
+    const { password_hash, ...safeUser } = user;
+
+    res.json({ token, user: safeUser });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Login failed' });
   }
-);
+};
 
+router.post('/login', loginValidators, loginHandler);
 
+// ─── FORGOT PASSWORD ─────────────────────────────────────────────────────────
 
-router.get('/me', authenticate, async (req, res) => {
+const forgotPasswordHandler = async (req, res) => {
+  if (handleValidation(req, res)) return;
+
+  const { email } = req.body;
+
+  try {
+    const result = await db.query(
+      'SELECT id, name FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    res.json({
+      message: 'Contact support at reservations@tnghotels.com or +91 90826 90060',
+      name: result.rows[0].name,
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Request failed' });
+  }
+};
+
+router.post('/forgot-password', [body('email').isEmail().normalizeEmail()], forgotPasswordHandler);
+
+// ─── GET CURRENT USER ────────────────────────────────────────────────────────
+
+const getMeHandler = async (req, res) => {
   try {
     const result = await db.query(
       `SELECT id, name, email, phone, role, created_at
@@ -165,9 +161,13 @@ router.get('/me', authenticate, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch user' });
   }
-});
+};
 
-router.put('/profile', authenticate, async (req, res) => {
+router.get('/me', authenticate, getMeHandler);
+
+// ─── UPDATE PROFILE ──────────────────────────────────────────────────────────
+
+const updateProfileHandler = async (req, res) => {
   const { name, phone } = req.body;
 
   try {
@@ -186,15 +186,17 @@ router.put('/profile', authenticate, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Update failed' });
   }
-});
+};
 
-router.put('/change-password', authenticate, async (req, res) => {
+router.put('/profile', authenticate, updateProfileHandler);
+
+// ─── CHANGE PASSWORD ─────────────────────────────────────────────────────────
+
+const changePasswordHandler = async (req, res) => {
   const { current_password, new_password } = req.body;
 
   if (!current_password || !new_password) {
-    return res.status(400).json({
-      error: 'Both passwords are required',
-    });
+    return res.status(400).json({ error: 'Both passwords are required' });
   }
 
   try {
@@ -209,9 +211,7 @@ router.put('/change-password', authenticate, async (req, res) => {
     );
 
     if (!valid) {
-      return res.status(401).json({
-        error: 'Incorrect current password',
-      });
+      return res.status(401).json({ error: 'Incorrect current password' });
     }
 
     const newHash = await bcrypt.hash(new_password, 10);
@@ -226,6 +226,8 @@ router.put('/change-password', authenticate, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Password update failed' });
   }
-});
+};
+
+router.put('/change-password', authenticate, changePasswordHandler);
 
 module.exports = router;
