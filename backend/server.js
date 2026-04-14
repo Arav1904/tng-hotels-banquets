@@ -4,7 +4,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { pool } = require('./config/db');
-
 const authRoutes = require('./routes/auth');
 const roomRoutes = require('./routes/rooms');
 const bookingRoutes = require('./routes/bookings');
@@ -15,10 +14,10 @@ const paymentRoutes = require('./routes/payment');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CRITICAL: Trust Railway/Vercel proxy headers (fixes rate-limit X-Forwarded-For error)
+// Fix rate-limit IP detection behind Railway/Vercel proxy
 app.set('trust proxy', 1);
 
-// Test DB connection on startup
+// Verify database connectivity at startup
 pool.query('SELECT NOW()', (err) => {
   if (err) {
     console.error('❌ PostgreSQL connection failed:', err.message);
@@ -28,10 +27,10 @@ pool.query('SELECT NOW()', (err) => {
   }
 });
 
-// Security
+// Apply security headers
 app.use(helmet({ crossOriginResourcePolicy: false, contentSecurityPolicy: false }));
 
-// CORS — allow all Vercel URLs + localhost
+// Permitted origins: local dev + all Vercel deployment URLs
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -44,10 +43,10 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (Postman, mobile apps)
+    // Permit originless requests (e.g. Postman, native mobile)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    // In development allow all
+    // Permit everything in local development
     if (process.env.NODE_ENV === 'development') return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
@@ -56,10 +55,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Handle preflight
+// Respond to all preflight requests
 app.options('*', cors());
 
-// Rate limiting — works correctly with trust proxy set above
+// API rate limiter — relies on trust proxy set above for correct IP resolution
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
@@ -69,11 +68,11 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Body parsing
+// Parse incoming request bodies
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Mount route handlers
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -81,22 +80,22 @@ app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/payment', paymentRoutes);
 
-// Health check
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'TNG Hotels API running', timestamp: new Date() });
 });
 
-// Root
+// Root endpoint
 app.get('/', (req, res) => {
   res.json({ message: 'TNG Hotels & Banquets API', version: '1.0.0' });
 });
 
-// 404
+// Catch-all 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
 });
 
-// Global error handler
+// Centralised error handler
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.message);
   if (err.message === 'Not allowed by CORS') {
