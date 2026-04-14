@@ -267,6 +267,7 @@ Login: `admin@tnghotels.com`
 ## 👨‍💻 Developer
 
 **Arav Ghiya**  
+**Dhruvkumar Goenka**
 SY Engineering — Web Programming Lab  
 TNG Hotels & Banquets, Akola
 
