@@ -1,20 +1,31 @@
-const {Pool} = require('pg');
+'use strict';
+
 require('dotenv').config();
- 
+const { Pool } = require('pg');
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+const sslConfig = isProduction ? { rejectUnauthorized: false } : false;
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: sslConfig,
 });
- 
-pool.on('connect',() => {
-  if (process.env.NODE_ENV !== 'production') {
+
+const onConnect = () => {
+  if (!isProduction) {
     console.log('✅ Connected to PostgreSQL database');
   }
-});
- 
-pool.on('error',(err) => {
+};
+
+const onError = (err) => {
   console.error('❌ PostgreSQL error:', err);
   process.exit(-1);
-});
- 
-module.exports = {pool, query: (text, params) => pool.query(text, params)};
+};
+
+pool.on('connect', onConnect);
+pool.on('error', onError);
+
+const query = (text, params) => pool.query(text, params);
+
+module.exports = { pool, query };
